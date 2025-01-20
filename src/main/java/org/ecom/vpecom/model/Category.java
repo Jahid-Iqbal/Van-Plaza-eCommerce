@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Entity
@@ -21,5 +21,6 @@ public class Category {
     private long categoryId;
 
     @NotBlank
+    @Size(min = 3, max = 50, message = "Category name size must be in between 3 and 50")
     private String categoryName;
 }
