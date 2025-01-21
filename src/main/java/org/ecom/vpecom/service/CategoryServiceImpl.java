@@ -30,7 +30,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Optional<Category> getCategoryById(long categoryId) {
-        return categoryRepository.findById(categoryId);
+        Optional<Category> cat = categoryRepository.findById(categoryId);
+        if (cat.isEmpty()) {
+            throw new ResourceNotFoundException("Category","categoryId",categoryId);
+        }
+        return cat;
     }
 
     @Override
