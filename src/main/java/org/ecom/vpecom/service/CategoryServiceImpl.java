@@ -8,6 +8,10 @@ import org.ecom.vpecom.model.Category;
 import org.ecom.vpecom.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +32,14 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public CategoryResponseDTO getAllCategories() {
-        List<Category> savedCategory = categoryRepository.findAll();
+    public CategoryResponseDTO getAllCategories(int pageNumber, int dataLimit, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, dataLimit, sortByAndOrder);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+        List<Category> savedCategory = categoryPage.getContent();
         if (savedCategory.isEmpty()) {
             throw new ApiException("No category has saved yet");
         }
@@ -38,6 +48,11 @@ public class CategoryServiceImpl implements CategoryService {
                 .toList();
         CategoryResponseDTO response = new CategoryResponseDTO();
         response.setCategory(responseDTO);
+        response.setPageNumber(categoryPage.getNumber());
+        response.setDataLimit(categoryPage.getSize());
+        response.setTotalRecords(categoryPage.getTotalElements());
+        response.setTotalNumberOfPage(categoryPage.getTotalPages());
+        response.setLastPage(categoryPage.isLast());
 
         return response;
     }

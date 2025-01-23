@@ -1,6 +1,7 @@
 package org.ecom.vpecom.controller;
 
 import jakarta.validation.Valid;
+import org.ecom.vpecom.config.AppConstants;
 import org.ecom.vpecom.dto.CategoryDTO;
 import org.ecom.vpecom.dto.CategoryResponseDTO;
 import org.ecom.vpecom.model.Category;
@@ -22,8 +23,12 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/public/categories")
-    public ResponseEntity<CategoryResponseDTO> getAllCategory(){
-        CategoryResponseDTO categories = categoryService.getAllCategories();
+    public ResponseEntity<CategoryResponseDTO> getAllCategory(
+            @RequestParam (name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) int pageNumber,
+            @RequestParam (name = "dataLimit", defaultValue = AppConstants.DATA_LIMIT, required = false) int dataLimit,
+            @RequestParam (name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+            @RequestParam (name = "sortOrder", defaultValue = AppConstants.SORT_ORDER, required = false) String sortOrder){
+        CategoryResponseDTO categories = categoryService.getAllCategories(pageNumber, dataLimit, sortBy, sortOrder);
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
