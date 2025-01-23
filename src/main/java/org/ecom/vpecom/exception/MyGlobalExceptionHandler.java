@@ -26,15 +26,17 @@ public class MyGlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> CustomResourceNotFoundException(ResourceNotFoundException e){
+    public ResponseEntity<ApiResponse> CustomResourceNotFoundException(ResourceNotFoundException e){
         String message = e.getMessage();
-        return new ResponseEntity<String>(message, HttpStatus.NOT_FOUND);
+        ApiResponse apiResponse = new ApiResponse(message, false);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<String> CustomApiException(ApiException e){
+    public ResponseEntity<ApiResponse> CustomApiException(ApiException e){
         String message = e.getMessage();
-        return new ResponseEntity<String>(message, HttpStatus.BAD_REQUEST);
+        ApiResponse apiResponse = new ApiResponse(message, false);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
 }
