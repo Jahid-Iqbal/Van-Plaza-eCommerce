@@ -1,17 +1,18 @@
 package org.ecom.vpecom.service;
 
+import org.ecom.vpecom.dto.CategoryDTO;
+import org.ecom.vpecom.dto.CategoryResponseDTO;
 import org.ecom.vpecom.model.Category;
-import org.ecom.vpecom.repository.CategoryRepository;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CategoryService {
 
-    List<Category> getAllCategories();
+    CategoryResponseDTO getAllCategories(int pageNumber, int dataLimit, String sortBy, String sortOrder);
     Optional<Category> getCategoryById(long categoryId);
-    void createCategory(Category category);
-    Category updateCategory(Category category, long categoryId);
-    String deleteCategory(long categoryId);
+    CategoryDTO createCategory(CategoryDTO category);
+    CategoryDTO updateCategory(CategoryDTO category, long categoryId);
+    CategoryDTO deleteCategory(long categoryId);
 
 }
