@@ -5,6 +5,7 @@ import org.ecom.vpecom.dto.ProductDTO;
 import org.ecom.vpecom.dto.ProductResponseDTO;
 import org.ecom.vpecom.model.Product;
 import org.ecom.vpecom.service.ProductService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @PostMapping("/admin/categories/{categoryId}/product")
     public ResponseEntity<ProductDTO> addProduct(@PathVariable Long categoryId, @RequestBody Product product) {
@@ -40,7 +43,9 @@ public class ProductController {
         return new ResponseEntity<>(productResponseDTO, HttpStatus.FOUND);
     }
 
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long productId, @RequestBody Product product) {
-
+    @PutMapping("/admin/products/{productId}")
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId, @RequestBody Product product) {
+        ProductDTO productDTO = productService.updateProduct(productId, product);
+        return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 }
