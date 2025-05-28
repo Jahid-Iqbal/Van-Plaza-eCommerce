@@ -9,6 +9,7 @@ import org.ecom.vpecom.repository.CategoryRepository;
 import org.ecom.vpecom.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,8 +33,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ModelMapper modelMapper;
+
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Value("${project.image}")
+    private String path;
+
+    @Autowired
+    FileService fileService;
 
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDto) {
@@ -106,27 +114,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
         Product fetchedProductFromDB = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
-        String path = "E:/Projects/Van-Plaza-eCommerce/images";
-        String filename = uploadImage(path, image);
+        String filename = fileService.uploadImage(path, image);
         fetchedProductFromDB.setImage(filename);
         Product updatedProduct = productRepository.save(fetchedProductFromDB);
 
         return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
-    public String uploadImage(String path, MultipartFile image) throws IOException {
-        String originalFileName = image.getOriginalFilename();
-        String randonUUID = UUID.randomUUID().toString();
-        String newFileName = randonUUID.concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
-        String filePath = path + File.separator + newFileName;
-
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-
-        Files.copy(image.getInputStream(), Paths.get(filePath));
-        return newFileName;
-
-    }
 }
