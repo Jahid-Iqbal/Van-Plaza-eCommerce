@@ -9,10 +9,18 @@ import org.ecom.vpecom.repository.CategoryRepository;
 import org.ecom.vpecom.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -25,14 +33,22 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ModelMapper modelMapper;
+
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Value("${project.image}")
+    private String path;
+
+    @Autowired
+    FileService fileService;
+
     @Override
-    public ProductDTO addProduct(Long categoryId, Product product) {
+    public ProductDTO addProduct(Long categoryId, ProductDTO productDto) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
 
+        Product product = modelMapper.map(productDto, Product.class);
         product.setCategory(category);
         product.setImage("Image.jpg");
         double sPrice = product.getPrice() - (product.getPrice() * (product.getDiscount()/100));
@@ -72,9 +88,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProduct(Long id, Product product) {
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
 
+        Product product = modelMapper.map(productDTO, Product.class);
         existingProduct.setProductName(product.getProductName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setPrice(product.getPrice());
@@ -85,4 +102,23 @@ public class ProductServiceImpl implements ProductService {
         return modelMapper.map(updatedProduct, ProductDTO.class);
 
     }
+
+    @Override
+    public ProductDTO deleteProduct(Long productId) {
+       Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+       productRepository.delete(product);
+       return modelMapper.map(product, ProductDTO.class);
+    }
+
+    @Override
+    public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
+        Product fetchedProductFromDB = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+        String filename = fileService.uploadImage(path, image);
+        fetchedProductFromDB.setImage(filename);
+        Product updatedProduct = productRepository.save(fetchedProductFromDB);
+
+        return modelMapper.map(updatedProduct, ProductDTO.class);
+    }
+
 }
